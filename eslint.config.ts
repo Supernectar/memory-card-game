@@ -18,7 +18,7 @@ export default tseslint.config(
   eslintPluginImportX.flatConfigs.typescript,
   {
     extends: [js.configs.recommended, ...tseslint["configs"].recommended],
-    files: ["**/*.{ts,tsx}"],
+    files: ["**/*.{js,jsx,ts,tsx}"],
     languageOptions: {
       parser: tsParser,
       ecmaVersion: 2020,
