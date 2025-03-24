@@ -14,8 +14,6 @@ import * as tsParser from "@typescript-eslint/parser";
 
 export default tseslint.config(
   { ignores: ["dist"] },
-  eslintPluginImportX.flatConfigs.recommended,
-  eslintPluginImportX.flatConfigs.typescript,
   {
     extends: [js.configs.recommended, ...tseslint["configs"].recommended],
     files: ["**/*.{js,jsx,ts,tsx}"],
@@ -28,7 +26,6 @@ export default tseslint.config(
       react,
       "react-refresh": reactRefresh,
       "jsx-a11y": jsxA11y,
-      vitest,
     },
     settings: {
       "import-x/resolver": {
@@ -37,9 +34,15 @@ export default tseslint.config(
         },
       },
     },
-    ...testingLibrary.configs["flat/react"],
   },
+  eslintPluginImportX.flatConfigs.recommended,
+  eslintPluginImportX.flatConfigs.typescript,
   reactHooks.configs["recommended-latest"],
   eslintPluginPrettierRecommended,
   ...tailwind.configs["flat/recommended"],
+  {
+    files: ["**/*.{test,spec}.{js,jsx,ts,tsx}"],
+    plugins: { vitest, "testing-library": testingLibrary },
+    ...testingLibrary.configs["flat/react"],
+  },
 );
