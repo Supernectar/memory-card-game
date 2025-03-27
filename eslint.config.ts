@@ -38,7 +38,17 @@ export default tseslint.config(
   eslintPluginImportX.flatConfigs.recommended,
   eslintPluginImportX.flatConfigs.typescript,
   reactHooks.configs["recommended-latest"],
-  eslintPluginPrettierRecommended,
+  {
+    ...eslintPluginPrettierRecommended,
+    rules: {
+      "prettier/prettier": [
+        "error",
+        {
+          endOfLine: "auto",
+        },
+      ],
+    },
+  },
   ...tailwind.configs["flat/recommended"],
   {
     files: ["**/*.{test,spec}.{js,jsx,ts,tsx}"],

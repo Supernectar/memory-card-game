@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+// eslint-disable-next-line import-x/default
 import react from "@vitejs/plugin-react";
 
 // https://vite.dev/config/
