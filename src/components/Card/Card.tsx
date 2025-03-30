@@ -1,32 +1,21 @@
-import React, { useState, forwardRef, Ref } from "react";
+import React, { forwardRef, Ref } from "react";
 
-interface CardProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  onRotate?: () => void;
-}
+type CardProps = {
+  value: number;
+  isFlipped: boolean;
+  onRotate: () => void;
+};
 
 const Card = forwardRef<HTMLButtonElement, CardProps>(
-  ({ onRotate, ...props }, ref: Ref<HTMLButtonElement>) => {
-    const [rotated, setRotated] = useState(false);
-
-    const handleClick = () => {
-      setRotated(true);
-
-      if (onRotate) {
-        onRotate();
-      }
-    };
-
+  ({ value, isFlipped, onRotate }, ref: Ref<HTMLButtonElement>) => {
     return (
       <button
         ref={ref}
-        className={`flex size-32 items-center justify-center rounded-lg bg-blue-500 text-white shadow-lg transition-transform ${
-          rotated ? "rotate-180" : ""
-        }`}
-        onClick={handleClick}
-        disabled={rotated}
-        {...props}
+        className={`flex size-32 items-center justify-center rounded-lg bg-blue-500 text-white shadow-lg transition-transform`}
+        onClick={onRotate}
+        disabled={isFlipped}
       >
-        <div className="text-center">Click to Rotate</div>
+        {isFlipped ? value : "Click to Rotate"}
       </button>
     );
   },

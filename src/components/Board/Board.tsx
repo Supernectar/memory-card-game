@@ -1,8 +1,45 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Card } from "../Card/Card";
 
-function Board({ rows = 4, cols = 8 }) {
-  const gridcellRefs = useRef<(HTMLTableCellElement | null)[]>([]); // Track gridcell (td) elements
+type CardInfo = { index: number; value: number };
+
+type BoardProps = {
+  rows?: number;
+  cols?: number;
+};
+
+function Board({ rows = 4, cols = 8 }: BoardProps) {
+  const gridcellRefs = useRef<(HTMLTableCellElement | null)[]>([]);
+  const [flippedCards, setFlippedCards] = useState<CardInfo[]>([]);
+  const [matchedCards, setMatchedCards] = useState<Set<number>>(new Set());
+  const cardValues = useRef<number[]>(generateCardValues(rows * cols));
+
+  function generateCardValues(size: number): number[] {
+    const values = Array.from({ length: size / 2 }, (_, i) => i + 1);
+    return [...values, ...values].sort(() => Math.random() - 0.5);
+  }
+
+  const handleCardRotate = (index: number): void => {
+    if (flippedCards.length === 2 || matchedCards.has(index)) return;
+
+    const newFlippedCards = [
+      ...flippedCards,
+      { index, value: cardValues.current[index] },
+    ];
+    setFlippedCards(newFlippedCards);
+
+    if (newFlippedCards.length === 2) {
+      const [first, second] = newFlippedCards;
+      setTimeout(() => {
+        if (first.value === second.value) {
+          setMatchedCards(
+            (prev) => new Set([...prev, first.index, second.index]),
+          );
+        }
+        setFlippedCards([]);
+      }, 1000);
+    }
+  };
 
   const clamp = (value: number, min: number, max: number) =>
     Math.max(min, Math.min(value, max));
@@ -75,7 +112,15 @@ function Board({ rows = 4, cols = 8 }) {
                     gridcellRefs.current[gridcellIndex] = el;
                   }}
                 >
-                  <Card />
+                  {!matchedCards.has(gridcellIndex) && (
+                    <Card
+                      value={cardValues.current[gridcellIndex]}
+                      isFlipped={flippedCards.some(
+                        (card) => card.index === gridcellIndex,
+                      )}
+                      onRotate={() => handleCardRotate(gridcellIndex)}
+                    />
+                  )}
                 </td>
               );
             })}
