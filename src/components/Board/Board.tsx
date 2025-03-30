@@ -23,6 +23,15 @@ function Board({ rows = 2, cols = 2 }: BoardProps) {
     return [...values, ...values].sort(() => Math.random() - 0.5);
   }
 
+  const restartGame = () => {
+    setFlippedCards([]);
+    setMatchedCards(new Set());
+    setMoves(0);
+    setStartTime(null);
+    setGameOver(false);
+    cardValues.current = generateCardValues(rows * cols);
+  };
+
   useEffect(() => {
     if (matchedCards.size === rows * cols) {
       setGameOver(true);
@@ -151,6 +160,7 @@ function Board({ rows = 2, cols = 2 }: BoardProps) {
         onClose={() => setGameOver(false)}
         moves={moves}
         startTime={startTime}
+        onRestart={restartGame}
       />
     </>
   );

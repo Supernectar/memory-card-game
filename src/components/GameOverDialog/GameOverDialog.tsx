@@ -3,6 +3,7 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 type GameOverDialogProps = {
   isOpen: boolean;
   onClose: () => void;
+  onRestart: () => void;
   moves: number;
   startTime: number | null;
 };
@@ -10,6 +11,7 @@ type GameOverDialogProps = {
 const GameOverDialog = ({
   isOpen,
   onClose,
+  onRestart,
   moves,
   startTime,
 }: GameOverDialogProps) => {
@@ -28,6 +30,12 @@ const GameOverDialog = ({
             Time: {((Date.now() - startTime) / 1000).toFixed(2)} seconds
           </p>
         )}
+        <button
+          onClick={onRestart}
+          className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded"
+        >
+          Restart Game
+        </button>
       </DialogPanel>
     </Dialog>
   );
