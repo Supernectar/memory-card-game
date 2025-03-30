@@ -1,23 +1,13 @@
 import { useRef, useState, useEffect } from "react";
 import { GameOverDialog } from "../GameOverDialog/GameOverDialog";
-import { PlayerCard } from "../PlayerCard/PlayerCard";
 import { Card } from "../Card/Card";
+import { PlayerList } from "../PlayerList/PlayerList";
+import { Player } from "../../types";
 type CardInfo = { index: number; value: number };
 
 type BoardProps = {
   rows?: number;
   cols?: number;
-};
-
-type Player = {
-  id: number;
-  name: string;
-  image: string;
-  remainingTime: string;
-  remainingTimeInSeconds: number;
-  moves: number;
-  pairsCaught: number;
-  isActive: boolean;
 };
 
 function Board({ rows = 4, cols = 8 }: BoardProps) {
@@ -228,19 +218,7 @@ function Board({ rows = 4, cols = 8 }: BoardProps) {
 
   return (
     <>
-      <div className="flex justify-around mb-4 gap-10">
-        {players.map((player) => (
-          <PlayerCard
-            key={player.id}
-            image={player.image}
-            name={player.name}
-            remainingTime={player.remainingTime}
-            moves={player.moves}
-            pairsCaught={player.pairsCaught}
-            isActive={player.isActive}
-          />
-        ))}
-      </div>
+      <PlayerList players={players} />
       <table
         className="w-full table-auto border-collapse border border-gray-300"
         role="grid"
