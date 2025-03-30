@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { GameOverDialog } from "../GameOverDialog/GameOverDialog";
 import { Card } from "../Card/Card";
 
 type CardInfo = { index: number; value: number };
@@ -8,10 +9,13 @@ type BoardProps = {
   cols?: number;
 };
 
-function Board({ rows = 4, cols = 8 }: BoardProps) {
+function Board({ rows = 2, cols = 2 }: BoardProps) {
   const gridcellRefs = useRef<(HTMLTableCellElement | null)[]>([]);
   const [flippedCards, setFlippedCards] = useState<CardInfo[]>([]);
   const [matchedCards, setMatchedCards] = useState<Set<number>>(new Set());
+  const [moves, setMoves] = useState(0);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [gameOver, setGameOver] = useState(false);
   const cardValues = useRef<number[]>(generateCardValues(rows * cols));
 
   function generateCardValues(size: number): number[] {
@@ -19,8 +23,18 @@ function Board({ rows = 4, cols = 8 }: BoardProps) {
     return [...values, ...values].sort(() => Math.random() - 0.5);
   }
 
+  useEffect(() => {
+    if (matchedCards.size === rows * cols) {
+      setGameOver(true);
+    }
+  }, [matchedCards, rows, cols]);
+
   const handleCardRotate = (index: number): void => {
     if (flippedCards.length === 2 || matchedCards.has(index)) return;
+
+    if (startTime === null) {
+      setStartTime(Date.now());
+    }
 
     const newFlippedCards = [
       ...flippedCards,
@@ -29,6 +43,8 @@ function Board({ rows = 4, cols = 8 }: BoardProps) {
     setFlippedCards(newFlippedCards);
 
     if (newFlippedCards.length === 2) {
+      setMoves((prev) => prev + 1);
+
       const [first, second] = newFlippedCards;
       setTimeout(() => {
         if (first.value === second.value) {
@@ -92,42 +108,51 @@ function Board({ rows = 4, cols = 8 }: BoardProps) {
   };
 
   return (
-    <table
-      className="w-full table-auto border-collapse border border-gray-300"
-      role="grid"
-      onKeyDown={handleKeyDown}
-    >
-      <tbody>
-        {[...Array(rows)].map((_, rowIndex) => (
-          <tr key={rowIndex}>
-            {[...Array(cols)].map((_, colIndex) => {
-              const gridcellIndex = rowIndex * cols + colIndex;
-              return (
-                <td
-                  key={colIndex}
-                  role="gridcell"
-                  tabIndex={0}
-                  className="border border-indigo-500/50 px-4 py-2 text-center"
-                  ref={(el) => {
-                    gridcellRefs.current[gridcellIndex] = el;
-                  }}
-                >
-                  {!matchedCards.has(gridcellIndex) && (
-                    <Card
-                      value={cardValues.current[gridcellIndex]}
-                      isFlipped={flippedCards.some(
-                        (card) => card.index === gridcellIndex,
-                      )}
-                      onRotate={() => handleCardRotate(gridcellIndex)}
-                    />
-                  )}
-                </td>
-              );
-            })}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <>
+      <table
+        className="w-full table-auto border-collapse border border-gray-300"
+        role="grid"
+        onKeyDown={handleKeyDown}
+      >
+        <tbody>
+          {[...Array(rows)].map((_, rowIndex) => (
+            <tr key={rowIndex}>
+              {[...Array(cols)].map((_, colIndex) => {
+                const gridcellIndex = rowIndex * cols + colIndex;
+                return (
+                  <td
+                    key={colIndex}
+                    role="gridcell"
+                    tabIndex={0}
+                    className="border border-indigo-500/50 px-4 py-2 text-center"
+                    ref={(el) => {
+                      gridcellRefs.current[gridcellIndex] = el;
+                    }}
+                  >
+                    {!matchedCards.has(gridcellIndex) && (
+                      <Card
+                        value={cardValues.current[gridcellIndex]}
+                        isFlipped={flippedCards.some(
+                          (card) => card.index === gridcellIndex,
+                        )}
+                        onRotate={() => handleCardRotate(gridcellIndex)}
+                      />
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <GameOverDialog
+        isOpen={gameOver}
+        onClose={() => setGameOver(false)}
+        moves={moves}
+        startTime={startTime}
+      />
+    </>
   );
 }
 
