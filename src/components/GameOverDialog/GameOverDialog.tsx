@@ -1,5 +1,5 @@
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/solid"; // Import close icon
+import { XMarkIcon } from "@heroicons/react/24/solid";
 
 type GameOverDialogProps = {
   isOpen: boolean;
@@ -23,7 +23,6 @@ const GameOverDialog = ({
       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30"
     >
       <DialogPanel className="relative bg-gray-800 text-white p-6 rounded-lg shadow-lg w-80">
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-2 right-2 p-1 rounded-full text-gray-400 hover:text-white hover:bg-gray-600"
@@ -40,7 +39,6 @@ const GameOverDialog = ({
           </p>
         )}
 
-        {/* Restart Button */}
         <button
           onClick={onRestart}
           className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded w-full"

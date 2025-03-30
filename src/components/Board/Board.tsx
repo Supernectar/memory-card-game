@@ -93,10 +93,10 @@ function Board({ rows = 2, cols = 2 }: BoardProps) {
       ArrowLeft: [0, -1],
       ArrowDown: [1, 0],
       ArrowUp: [-1, 0],
-      PageDown: [4, 0], // Move focus down by 4 rows
-      PageUp: [-4, 0], // Move focus up by 4 rows
-      Home: [0, -currentCol], // Move to first cell in the row
-      End: [0, cols - 1 - currentCol], // Move to last cell in the row
+      PageDown: [4, 0],
+      PageUp: [-4, 0],
+      Home: [0, -currentCol],
+      End: [0, cols - 1 - currentCol],
     };
 
     const [rowOffset, colOffset] = moveMap[key] || [0, 0];
