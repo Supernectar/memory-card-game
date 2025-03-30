@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { GameOverDialog } from "../GameOverDialog/GameOverDialog";
+import { PlayerCard } from "../PlayerCard/PlayerCard";
 import { Card } from "../Card/Card";
-
 type CardInfo = { index: number; value: number };
 
 type BoardProps = {
@@ -9,14 +9,67 @@ type BoardProps = {
   cols?: number;
 };
 
-function Board({ rows = 2, cols = 2 }: BoardProps) {
+type Player = {
+  id: number;
+  name: string;
+  image: string;
+  remainingTime: string;
+  remainingTimeInSeconds: number;
+  moves: number;
+  pairsCaught: number;
+  isActive: boolean;
+};
+
+function Board({ rows = 4, cols = 8 }: BoardProps) {
   const gridcellRefs = useRef<(HTMLTableCellElement | null)[]>([]);
   const [flippedCards, setFlippedCards] = useState<CardInfo[]>([]);
   const [matchedCards, setMatchedCards] = useState<Set<number>>(new Set());
-  const [moves, setMoves] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [gameOver, setGameOver] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const cardValues = useRef<number[]>(generateCardValues(rows * cols));
+  const [players, setPlayers] = useState<Player[]>([
+    {
+      id: 1,
+      name: "Player 1",
+      image: "/profileImages/player1.png",
+      remainingTime: "10:00",
+      remainingTimeInSeconds: 600,
+      moves: 0,
+      pairsCaught: 0,
+      isActive: true,
+    },
+    {
+      id: 2,
+      name: "Player 2",
+      image: "/profileImages/player1.png",
+      remainingTime: "10:00",
+      remainingTimeInSeconds: 600,
+      moves: 0,
+      pairsCaught: 0,
+      isActive: false,
+    },
+    {
+      id: 3,
+      name: "Player 3",
+      image: "/profileImages/player1.png",
+      remainingTime: "10:00",
+      remainingTimeInSeconds: 600,
+      moves: 0,
+      pairsCaught: 0,
+      isActive: false,
+    },
+    {
+      id: 4,
+      name: "Player 4",
+      image: "/profileImages/player1.png",
+      remainingTime: "10:00",
+      remainingTimeInSeconds: 600,
+      moves: 0,
+      pairsCaught: 0,
+      isActive: false,
+    },
+  ]);
 
   function generateCardValues(size: number): number[] {
     const values = Array.from({ length: size / 2 }, (_, i) => i + 1);
@@ -26,17 +79,55 @@ function Board({ rows = 2, cols = 2 }: BoardProps) {
   const restartGame = () => {
     setFlippedCards([]);
     setMatchedCards(new Set());
-    setMoves(0);
     setStartTime(null);
     setGameOver(false);
+    setIsDialogOpen(false);
     cardValues.current = generateCardValues(rows * cols);
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((player) => ({
+        ...player,
+        moves: 0,
+        pairsCaught: 0,
+        remainingTimeInSeconds: 600,
+        remainingTime: "10:00",
+      })),
+    );
   };
 
   useEffect(() => {
     if (matchedCards.size === rows * cols) {
       setGameOver(true);
+      setIsDialogOpen(true);
     }
   }, [matchedCards, rows, cols]);
+
+  useEffect(() => {
+    if (startTime === null || gameOver) return;
+
+    const intervalId = setInterval(() => {
+      setPlayers((prevPlayers) => {
+        return prevPlayers.map((player) => {
+          if (player.isActive && player.remainingTimeInSeconds > 0) {
+            const updatedPlayer = {
+              ...player,
+              remainingTimeInSeconds: player.remainingTimeInSeconds - 1,
+              remainingTime: formatTime(player.remainingTimeInSeconds - 1),
+            };
+            return updatedPlayer;
+          }
+          return player;
+        });
+      });
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [startTime, gameOver]);
+
+  const formatTime = (timeInSeconds: number): string => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  };
 
   const handleCardRotate = (index: number): void => {
     if (flippedCards.length === 2 || matchedCards.has(index)) return;
@@ -52,15 +143,34 @@ function Board({ rows = 2, cols = 2 }: BoardProps) {
     setFlippedCards(newFlippedCards);
 
     if (newFlippedCards.length === 2) {
-      setMoves((prev) => prev + 1);
+      setPlayers((prevPlayers) => {
+        const updatedPlayers = prevPlayers.map((player) => {
+          if (player.isActive) {
+            return { ...player, moves: player.moves + 1 };
+          }
+          return player;
+        });
+        return updatedPlayers;
+      });
 
       const [first, second] = newFlippedCards;
       setTimeout(() => {
         if (first.value === second.value) {
+          setPlayers((prevPlayers) => {
+            const updatedPlayers = prevPlayers.map((player) => {
+              if (player.isActive) {
+                return { ...player, pairsCaught: player.pairsCaught + 1 };
+              }
+              return player;
+            });
+            return updatedPlayers;
+          });
+
           setMatchedCards(
             (prev) => new Set([...prev, first.index, second.index]),
           );
         }
+
         setFlippedCards([]);
       }, 1000);
     }
@@ -118,6 +228,19 @@ function Board({ rows = 2, cols = 2 }: BoardProps) {
 
   return (
     <>
+      <div className="flex justify-around mb-4 gap-10">
+        {players.map((player) => (
+          <PlayerCard
+            key={player.id}
+            image={player.image}
+            name={player.name}
+            remainingTime={player.remainingTime}
+            moves={player.moves}
+            pairsCaught={player.pairsCaught}
+            isActive={player.isActive}
+          />
+        ))}
+      </div>
       <table
         className="w-full table-auto border-collapse border border-gray-300"
         role="grid"
@@ -156,9 +279,9 @@ function Board({ rows = 2, cols = 2 }: BoardProps) {
       </table>
 
       <GameOverDialog
-        isOpen={gameOver}
-        onClose={() => setGameOver(false)}
-        moves={moves}
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        moves={players[0].moves}
         startTime={startTime}
         onRestart={restartGame}
       />
