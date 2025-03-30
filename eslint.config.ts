@@ -4,11 +4,11 @@ import react from "eslint-plugin-react";
 import * as reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
-import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import vitest from "@vitest/eslint-plugin";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import testingLibrary from "eslint-plugin-testing-library";
 import * as tsParser from "@typescript-eslint/parser";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 
 export default tseslint.config(
   { ignores: ["dist"] },
@@ -28,19 +28,9 @@ export default tseslint.config(
   },
   reactHooks.configs["recommended-latest"],
   {
-    ...eslintPluginPrettierRecommended,
-    rules: {
-      "prettier/prettier": [
-        "error",
-        {
-          endOfLine: "auto",
-        },
-      ],
-    },
-  },
-  {
     files: ["**/*.{test,spec}.{js,jsx,ts,tsx}"],
     plugins: { vitest, "testing-library": testingLibrary },
     ...testingLibrary.configs["flat/react"],
   },
+  eslintConfigPrettier,
 );
